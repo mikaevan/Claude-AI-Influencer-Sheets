@@ -59,7 +59,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(14,14,16,.92);backdr
 .startnote{margin-top:32px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);padding-top:16px}
 
 /* ---------- Builder layout ---------- */
-.app{display:grid;grid-template-columns:240px minmax(0,1fr) 320px;gap:24px;max-width:1440px;margin:0 auto;padding:24px}
+.app{display:grid;grid-template-columns:240px minmax(0,1fr) 340px;gap:24px;max-width:1440px;margin:0 auto;padding:24px}
 .side,.summary{position:sticky;top:88px;align-self:start}
 .summary{max-height:calc(100vh - 112px);overflow:auto}
 .nav{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
@@ -159,7 +159,8 @@ input[type=date].inp{max-width:220px;color-scheme:dark}
 .imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
 .imgitem{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-chip);overflow:hidden;display:flex;flex-direction:column}
 .imgitem .thumb{aspect-ratio:1;background:var(--card2);display:grid;place-items:center;color:var(--muted);font-size:28px}
-.imgitem .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.imgitem .thumb{overflow:hidden}
+.imgitem .thumb img{width:100%;aspect-ratio:1;height:auto;object-fit:cover;display:block}
 .imgitem .meta{padding:8px;display:flex;gap:4px;align-items:flex-start;font-size:12px;word-break:break-word}
 .imgitem .meta span{flex:1}
 .imgitem .iconbtn{width:24px;height:24px;font-size:12px;flex:none}
@@ -169,29 +170,40 @@ input[type=date].inp{max-width:220px;color-scheme:dark}
 /* section footer */
 .secfoot{display:flex;justify-content:space-between;gap:8px;margin-top:24px}
 
-/* ---------- Summary ---------- */
+/* ---------- Summary (right column: persona preview) ---------- */
 .drawer-toggle{display:none}
-.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;overflow:hidden}
-.pcard .cover{height:56px;margin:-16px -16px 0;background:linear-gradient(120deg,var(--hair,#5C0A1E),var(--accent))}
-.avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--card);margin-top:-36px;background:var(--hair,#5C0A1E);
-  display:grid;place-items:center;font-size:28px;font-weight:700;overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.pname{font-size:20px;font-weight:700;margin-top:8px}
+.hero{position:relative;aspect-ratio:4/5;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);
+  background:radial-gradient(120% 90% at 50% 20%,color-mix(in srgb,var(--hair,#5C0A1E) 70%,#000) 0%,var(--card) 70%)}
+.hero > img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
+.hero-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 24px 96px;text-align:center}
+.hero-empty p{margin:0;color:var(--muted);font-size:13px}
+.hero-initial{width:96px;height:96px;border-radius:50%;background:var(--hair,#5C0A1E);border:3px solid rgba(255,255,255,.12);
+  display:grid;place-items:center;font-size:40px;font-weight:700}
+.hero-cap{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 16px;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.hero-kind{position:absolute;top:12px;left:12px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.6);color:var(--text)}
+.pname{font-size:22px;font-weight:700;letter-spacing:-.01em}
 .phandle{color:var(--accent-text);font-size:14px}
-.pbrand{color:var(--muted);font-size:14px;margin-top:4px;font-style:italic}
-.psent{font-size:14px;margin:12px 0 0}
-.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
-.tag{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--card2);border:1px solid var(--border);color:var(--muted)}
-.tag.ai{color:var(--accent-text);border-color:rgba(240,106,150,.35)}
+.strip{display:flex;gap:8px;margin-top:8px;overflow-x:auto;padding:2px}
+.strip button{flex:none;width:56px;height:56px;border-radius:var(--r-chip);overflow:hidden;border:2px solid var(--border2);padding:0;cursor:pointer;background:var(--card2)}
+.strip button[aria-pressed="true"]{border-color:var(--accent-text)}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.pbrand{color:var(--muted);font-size:14px;margin:12px 0 0;font-style:italic}
+.psent{font-size:14px;margin:4px 0 0}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:16px}
-.panel h3{font-size:14px;margin-bottom:8px}
-.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:8px}
+.panel h3{font-size:13px;margin-bottom:12px;color:var(--muted);font-weight:600}
+.picked{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 12px;border-radius:999px;background:var(--card2);
+  border:1px solid var(--border2);cursor:pointer;max-width:100%;text-align:left}
+.pchip:hover{border-color:var(--accent-text)}
+.pchip.ai{color:var(--accent-text);border-color:rgba(240,106,150,.35)}
+.pchip .sw{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid rgba(255,255,255,.3)}
+.pempty{margin:0;color:var(--muted);font-size:13px}
+.req{margin-top:16px;font-size:13px;color:var(--muted)}
+.req .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.bar{height:6px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
 .bar i.full{background:var(--ok)}
-.missing{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
-.missing li{display:flex;gap:8px}
-.missing .sl{color:var(--warn);font-weight:600;width:16px;flex:none}
-.alldone{color:var(--ok);font-size:14px;margin:0}
+.req .done{color:var(--ok)}
 
 /* ---------- Review ---------- */
 .box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 24px;margin-bottom:16px}
@@ -704,13 +716,14 @@ function renderImages(f, items){
     h("div", {class:"addrow"}, nameIn, h("button", {type:"button", class:"btn small", onclick:addName}, "+ Add")));
 }
 function makeThumb(file){
+  // Stores a resized copy (max 800px) for the preview. The original file stays on your computer.
   return new Promise(res => {
     const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
-      const s = 200, c = document.createElement("canvas"), r = Math.max(s / img.width, s / img.height);
-      c.width = c.height = s;
-      c.getContext("2d").drawImage(img, (s - img.width * r) / 2, (s - img.height * r) / 2, img.width * r, img.height * r);
-      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .72));
+      const r = Math.min(1, 800 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .82));
     };
     img.onerror = () => { URL.revokeObjectURL(url); res(null); };
     img.src = url;
@@ -758,7 +771,10 @@ function jumpToField(f){
   if (target) target.focus({preventScroll:true});
 }
 
-/* ---------- Summary card ---------- */
+/* ---------- Right column: persona preview ---------- */
+let previewKey = null;   // which reference image is shown big ("faceRefs:0", "styleRefs:2"…)
+const PICKED = ["ethnicity","age","skin","build","height","hairColor","hairStyle","eyes","makeup","fashionStyle","archetype","traits","mainNiche","homeBase"];
+
 function renderSummary(){
   const d = state.data, id = d.identity, ap = d.appearance;
   const miss = missingRequired();
@@ -766,40 +782,60 @@ function renderSummary(){
   const done = reqTotal - miss.length;
   const name = (id.name || "").trim();
   const hair = ap.hairColor && /^#[0-9a-fA-F]{6}$/.test(ap.hairColor.hex) ? ap.hairColor.hex : "#5C0A1E";
-  const face = (ap.faceRefs || []).find(i => i.thumb);
-  const tagsFor = [];
-  const addTag = (fid, prefix = "") => {
+
+  // Hero image
+  const pics = [
+    ...(ap.faceRefs || []).map((im, i) => ({...im, kind:"Face", key:"faceRefs:" + i})),
+    ...(d.style.styleRefs || []).map((im, i) => ({...im, kind:"Style", key:"styleRefs:" + i}))
+  ];
+  const withImg = pics.filter(p => p.thumb);
+  const main = withImg.find(p => p.key === previewKey) || withImg[0];
+  const hero = h("div", {class:"hero", style:`--hair:${hair}`},
+    main ? h("img", {src:main.thumb, alt:`${name || "Persona"}: ${main.kind.toLowerCase()} reference (${main.name})`}) :
+      h("div", {class:"hero-empty"},
+        h("div", {class:"hero-initial", "aria-hidden":"true"}, name ? name[0].toUpperCase() : "?"),
+        h("p", {}, pics.length ? `“${pics[0].name}” was added by name only. Upload the image to see her here.` : "No face image yet. Her preview will show here."),
+        h("button", {type:"button", class:"btn small", onclick:() => jumpToField(FIELDS.faceRefs)}, "📷 Add face references")),
+    main ? h("span", {class:"hero-kind"}, main.kind + " reference") : null,
+    h("div", {class:"hero-cap"},
+      h("div", {class:"pname"}, name || "Unnamed persona"),
+      id.handle ? h("div", {class:"phandle"}, id.handle) : null));
+
+  const strip = withImg.length > 1 ? h("div", {class:"strip", role:"group", "aria-label":"Choose preview image"},
+    withImg.map(p => h("button", {type:"button", "aria-pressed":String(p === main), "aria-label":`Show ${p.kind.toLowerCase()} reference ${p.name}`,
+      onclick:() => { previewKey = p.key; renderSummary(); }}, h("img", {src:p.thumb, alt:""})))) : null;
+
+  // Picked settings (click to edit)
+  const chips = [];
+  PICKED.forEach(fid => {
     const f = FIELDS[fid];
-    if (isAI(f)) tagsFor.push(h("span", {class:"tag ai"}, `${f.label}: AI will suggest`));
-    else if (filled(f)) tagsFor.push(h("span", {class:"tag"}, prefix + fmt(f, getVal(fid), ", ")));
-  };
-  addTag("archetype"); addTag("homeBase", "📍 "); addTag("age", "Age "); addTag("mainNiche"); addTag("mainPlatform");
-  addTag("fanName", "Fans: ");
-  const traits = d.personality.traits || [];
+    if (isAI(f)) { chips.push(h("button", {type:"button", class:"pchip ai", onclick:() => jumpToField(f)}, `✨ ${f.label}: AI suggests`)); return; }
+    const v = getVal(fid); if (!isFilled(f, v)) return;
+    const items = fid === "traits" ? v : [fid === "age" ? `${v} y/o` : fmt(f, v, ", ")];
+    items.forEach(t => {
+      t = t.length > 42 ? t.slice(0, 40) + "…" : t;
+      chips.push(h("button", {type:"button", class:"pchip", title:"Edit " + f.label, "aria-label":`${f.label}: ${t}. Edit`, onclick:() => jumpToField(f)},
+        fid === "hairColor" ? h("span", {class:"sw", style:`background:${hair}`, "aria-hidden":"true"}) : null, t));
+    });
+  });
+  const picked = h("div", {class:"panel"}, h("h3", {}, "Picked settings"),
+    chips.length ? h("div", {class:"picked"}, chips) : h("p", {class:"pempty"}, "Your choices from B–F will appear here."));
 
-  const card = h("div", {class:"pcard", style:`--hair:${hair}`},
-    h("div", {class:"cover"}),
-    h("div", {class:"avatar", "aria-hidden":"true"}, face ? h("img", {src:face.thumb, alt:""}) : (name ? name[0].toUpperCase() : "?")),
-    h("div", {class:"pname"}, name || "Unnamed persona"),
-    id.handle ? h("div", {class:"phandle"}, id.handle) : null,
-    id.branding ? h("div", {class:"pbrand"}, "“" + id.branding + "”") : null,
-    id.oneSentence ? h("p", {class:"psent"}, id.oneSentence) : h("p", {class:"psent", style:"color:var(--muted)"}, "Her one-sentence description will show here."),
-    tagsFor.length ? h("div", {class:"tags"}, tagsFor) : null,
-    traits.length ? h("div", {class:"tags"}, traits.map(t => h("span", {class:"tag"}, t))) : null);
-
+  // Compact required-fields line (the full list lives in H. Review & Generate)
   const pct = Math.round(done / reqTotal * 100);
-  const prog = h("div", {class:"panel"},
-    h("h3", {}, `Required fields: ${done} / ${reqTotal}`),
+  const req = h("div", {class:"req"},
+    h("div", {class:"row"},
+      h("span", {}, `Required ${done}/${reqTotal}`),
+      miss.length
+        ? h("button", {type:"button", class:"linkbtn", onclick:() => goTo(SECTIONS.length - 1)}, `${miss.length} left → see list`)
+        : h("span", {class:"done"}, "✓ Ready to generate")),
     h("div", {class:"bar", role:"progressbar", "aria-valuemin":0, "aria-valuemax":reqTotal, "aria-valuenow":done, "aria-label":"Required fields completed"},
       h("i", {class:pct === 100 ? "full" : "", style:`width:${pct}%`})));
 
-  const missPanel = h("div", {class:"panel"}, h("h3", {}, "Missing required"),
-    miss.length ? h("ul", {class:"missing"}, miss.map(f => h("li", {},
-      h("span", {class:"sl", "aria-hidden":"true"}, SECTIONS.find(s => s.key === f.sec).letter),
-      h("button", {type:"button", class:"linkbtn", onclick:() => jumpToField(f)}, f.label.replace(" 📷", "")))))
-    : h("p", {class:"alldone"}, "✓ All required fields done. Go to H. Review & Generate."));
-
-  $("drawerBody").replaceChildren(card, prog, missPanel);
+  $("drawerBody").replaceChildren(hero, strip || "",
+    id.branding ? h("p", {class:"pbrand"}, "“" + id.branding + "”") : "",
+    id.oneSentence ? h("p", {class:"psent"}, id.oneSentence) : "",
+    picked, req);
   $("drawerToggle").replaceChildren(
     h("span", {}, `${name || "Persona"} · ${miss.length ? miss.length + " required left" : "ready ✓"}`),
     h("span", {"aria-hidden":"true"}, $("summary").classList.contains("open") ? "▼" : "▲"));
