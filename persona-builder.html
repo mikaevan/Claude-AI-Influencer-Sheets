@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkinSeoul Persona Builder</title>
+<!-- Only external resource: Google Fonts (Inter). No API calls, no keys, no logins. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E0E10; --card:#17171A; --card2:#1E1E22; --border:#26262B; --border2:#34343B;
+  --text:#F2F2F3; --muted:#9A9AA3;
+  --accent:#C2185B; --accent-h:#E0336F; --accent-text:#F06A96;
+  --ok:#3DDC97; --warn:#F5B83D;
+  --r:12px; --r-chip:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+h1,h2,h3{margin:0;line-height:1.25}
+a{color:var(--accent-text)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border2);background:var(--card2);
+  padding:8px 16px;border-radius:var(--r-chip);cursor:pointer;font-weight:500;min-height:40px;white-space:nowrap}
+.btn:hover{border-color:#4a4a52;background:#25252a}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-h);border-color:var(--accent-h)}
+.btn.ghost{background:transparent}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+.btn.small{min-height:32px;padding:4px 12px;font-size:13px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent-text);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-align:left}
+
+/* ---------- Header ---------- */
+header.top{position:sticky;top:0;z-index:30;background:rgba(14,14,16,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:12px 24px;min-height:64px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;letter-spacing:-.01em}
+.logo .dot{width:24px;height:24px;border-radius:8px;background:var(--accent);display:grid;place-items:center;font-size:13px}
+.logo small{color:var(--muted);font-weight:500}
+.top .spacer{flex:1}
+.savestate{color:var(--muted);font-size:13px}
+
+/* ---------- Start screen ---------- */
+.start{max-width:960px;margin:0 auto;padding:64px 24px}
+.start h1{font-size:32px;letter-spacing:-.02em}
+.start p.lead{color:var(--muted);max-width:640px;margin:8px 0 32px}
+.startgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.startcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:left;cursor:pointer;
+  display:flex;flex-direction:column;gap:8px;min-height:168px}
+.startcard:hover{border-color:var(--accent)}
+.startcard .ico{font-size:24px}
+.startcard strong{font-size:17px}
+.startcard span.d{color:var(--muted);font-size:14px}
+.startnote{margin-top:32px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);padding-top:16px}
+
+/* ---------- Builder layout ---------- */
+.app{display:grid;grid-template-columns:240px minmax(0,1fr) 320px;gap:24px;max-width:1440px;margin:0 auto;padding:24px}
+.side,.summary{position:sticky;top:88px;align-self:start}
+.summary{max-height:calc(100vh - 112px);overflow:auto}
+.nav{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.navbtn{position:relative;width:100%;display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--r-chip);border:1px solid transparent;
+  background:transparent;cursor:pointer;text-align:left;color:var(--muted)}
+.navbtn:hover{background:var(--card);color:var(--text)}
+.navbtn[aria-current="step"]{background:var(--card);border-color:var(--border2);color:var(--text)}
+.navbtn .letter{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--card2);border:1px solid var(--border);font-weight:600;font-size:13px;flex:none}
+.navbtn[aria-current="step"] .letter{background:var(--accent);border-color:var(--accent);color:#fff}
+.navbtn .ntitle{flex:1;font-weight:500}
+.st{font-size:13px;width:20px;text-align:center;flex:none;font-weight:700}
+.st.ok{color:var(--ok)} .st.warn{color:var(--warn)} .st.none{color:var(--muted)}
+.legend{margin-top:16px;color:var(--muted);font-size:12px;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+
+/* ---------- Main section ---------- */
+.sechead{margin-bottom:24px}
+.sechead .kicker{color:var(--accent-text);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.sechead h2{font-size:26px;letter-spacing:-.02em;margin-top:4px}
+.sechead p{color:var(--muted);margin:8px 0 0}
+.fields{display:flex;flex-direction:column;gap:16px}
+.field{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 16px 16px}
+.field.flash{animation:flash 1.4s ease}
+@keyframes flash{0%,40%{border-color:var(--warn);box-shadow:0 0 0 3px rgba(245,184,61,.25)}100%{border-color:var(--border);box-shadow:none}}
+.fhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.flabel{font-weight:600}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--border2);color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.badge.req{color:var(--warn);border-color:rgba(245,184,61,.45)}
+.badge.req.done{color:var(--ok);border-color:rgba(61,220,151,.45)}
+.badge.ai{color:var(--accent-text);border-color:rgba(240,106,150,.45)}
+.fhead .grow{flex:1}
+fieldset.fbody{border:0;margin:0;padding:0;min-width:0}
+.field.is-ai fieldset.fbody{opacity:.35;filter:grayscale(1)}
+.ai-note{margin:8px 0 0;font-size:13px;color:var(--accent-text)}
+.hint{margin:8px 0 0;color:var(--muted);font-size:13px}
+
+/* tooltip */
+.tipwrap{position:relative;display:inline-flex}
+.tip{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);background:var(--card2);color:var(--muted);
+  font-size:12px;font-weight:700;cursor:help;padding:0;line-height:1}
+.tip:hover{color:var(--text)}
+.tipbox{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:280px;max-width:80vw;z-index:40;
+  background:#000;border:1px solid var(--border2);border-radius:var(--r-chip);padding:8px 12px;font-size:13px;font-weight:400;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;flex-direction:column;gap:4px;color:var(--text)}
+.tipex{color:var(--muted)}
+.tipwrap:hover .tipbox,.tip:focus-visible + .tipbox,.tip:focus + .tipbox{display:flex}
+@media (max-width:600px){.tipbox{left:auto;right:-8px;transform:none}}
+
+/* AI toggle */
+.aitoggle{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border2);border-radius:999px;
+  padding:4px 12px 4px 4px;cursor:pointer;font-size:13px;color:var(--muted)}
+.aitoggle .sw{width:28px;height:16px;border-radius:999px;background:var(--border2);position:relative;flex:none;transition:background .15s}
+.aitoggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:left .15s}
+.aitoggle[aria-checked="true"]{color:var(--text);border-color:var(--accent)}
+.aitoggle[aria-checked="true"] .sw{background:var(--accent)}
+.aitoggle[aria-checked="true"] .sw::after{left:14px}
+
+/* inputs */
+.inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-chip);padding:10px 12px;min-height:42px}
+.inp::placeholder{color:#6f6f78}
+.inp:hover{border-color:#4a4a52}
+.inp:focus{border-color:var(--accent-text);outline:none;box-shadow:0 0 0 3px rgba(240,106,150,.25)}
+textarea.inp{resize:vertical;min-height:84px}
+.withsuffix{display:flex;align-items:center;gap:8px;max-width:220px}
+.withsuffix span{color:var(--muted)}
+input[type=date].inp{max-width:220px;color-scheme:dark}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--border2);background:var(--card2);padding:8px 12px;border-radius:var(--r-chip);cursor:pointer;min-height:36px;font-size:14px}
+.chip:hover{border-color:#4a4a52}
+.chip[aria-pressed="true"]{background:rgba(194,24,91,.18);border-color:var(--accent);color:#fff}
+.chip[aria-pressed="true"]::before{content:"✓ ";color:var(--accent-text)}
+.addrow{display:flex;gap:8px;margin-top:8px;max-width:420px}
+.addrow .inp{min-height:36px;padding:6px 12px}
+
+/* color */
+.colorrow{display:grid;grid-template-columns:48px 1fr 140px;gap:8px;align-items:center}
+.colorrow input[type=color]{width:48px;height:42px;border:1px solid var(--border2);border-radius:var(--r-chip);background:var(--bg);padding:4px;cursor:pointer}
+
+/* ratio */
+.ratio{display:flex;flex-direction:column;gap:8px}
+.ratiorow{display:grid;grid-template-columns:1fr 96px 36px;gap:8px;align-items:center}
+.ratiorow .pct{display:flex;align-items:center;gap:4px}
+.ratiorow .pct span{color:var(--muted)}
+.iconbtn{width:36px;height:36px;border-radius:var(--r-chip);border:1px solid var(--border2);background:var(--card2);cursor:pointer}
+.iconbtn:hover{border-color:var(--accent)}
+.ratiofoot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.total{font-size:13px;font-weight:600}
+.total.ok{color:var(--ok)} .total.warn{color:var(--warn)}
+.ratiobar{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--border)}
+
+/* images */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1.5px dashed var(--border2);border-radius:var(--r);
+  padding:24px;text-align:center;cursor:pointer;color:var(--muted)}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--text)}
+.drop strong{color:var(--text)}
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+.imgitem{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-chip);overflow:hidden;display:flex;flex-direction:column}
+.imgitem .thumb{aspect-ratio:1;background:var(--card2);display:grid;place-items:center;color:var(--muted);font-size:28px}
+.imgitem .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.imgitem .meta{padding:8px;display:flex;gap:4px;align-items:flex-start;font-size:12px;word-break:break-word}
+.imgitem .meta span{flex:1}
+.imgitem .iconbtn{width:24px;height:24px;font-size:12px;flex:none}
+.check{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+
+/* section footer */
+.secfoot{display:flex;justify-content:space-between;gap:8px;margin-top:24px}
+
+/* ---------- Summary ---------- */
+.drawer-toggle{display:none}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;overflow:hidden}
+.pcard .cover{height:56px;margin:-16px -16px 0;background:linear-gradient(120deg,var(--hair,#5C0A1E),var(--accent))}
+.avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--card);margin-top:-36px;background:var(--hair,#5C0A1E);
+  display:grid;place-items:center;font-size:28px;font-weight:700;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.pname{font-size:20px;font-weight:700;margin-top:8px}
+.phandle{color:var(--accent-text);font-size:14px}
+.pbrand{color:var(--muted);font-size:14px;margin-top:4px;font-style:italic}
+.psent{font-size:14px;margin:12px 0 0}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.tag{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--card2);border:1px solid var(--border);color:var(--muted)}
+.tag.ai{color:var(--accent-text);border-color:rgba(240,106,150,.35)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:16px}
+.panel h3{font-size:14px;margin-bottom:8px}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.bar i.full{background:var(--ok)}
+.missing{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.missing li{display:flex;gap:8px}
+.missing .sl{color:var(--warn);font-weight:600;width:16px;flex:none}
+.alldone{color:var(--ok);font-size:14px;margin:0}
+
+/* ---------- Review ---------- */
+.box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 24px;margin-bottom:16px}
+.box.warn{border-color:rgba(245,184,61,.5)}
+.box.ok{border-color:rgba(61,220,151,.45)}
+.box h3{font-size:16px;margin-bottom:8px}
+.box ul,.box ol{margin:8px 0 0;padding-left:20px}
+.box li{margin:4px 0}
+.prompt{width:100%;min-height:420px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);
+  border:1px solid var(--border2);border-radius:var(--r-chip);padding:16px;color:var(--text);resize:vertical}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000;border:1px solid var(--ok);color:var(--text);
+  padding:8px 16px;border-radius:var(--r-chip);z-index:60;font-size:14px}
+
+/* ---------- Mobile (<900px): top stepper + single column + bottom drawer ---------- */
+@media (max-width:900px){
+  header.top{padding:8px 16px;gap:8px}
+  .logo small,.savestate{display:none}
+  .app{grid-template-columns:minmax(0,1fr);padding:0 16px 120px;gap:16px}
+  .side,#main{min-width:0}
+  .side{position:sticky;top:64px;z-index:20;background:var(--bg);margin:0 -16px;padding:8px 16px;border-bottom:1px solid var(--border)}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;scrollbar-width:none}
+  .navbtn{width:auto;flex:none;padding:6px 10px;gap:6px}
+  .navbtn .ntitle{font-size:13px;white-space:nowrap}
+  .legend{display:none}
+  .summary{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:none;overflow:visible;z-index:25;background:var(--card);
+    border-top:1px solid var(--border2);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.5)}
+  .drawer-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;background:none;border:0;
+    padding:16px;cursor:pointer;font-weight:600}
+  .drawer-body{display:none;max-height:65vh;overflow:auto;padding:0 16px 16px}
+  .summary.open .drawer-body{display:block}
+  .colorrow{grid-template-columns:48px 1fr}
+  .colorrow .hex{grid-column:1 / -1}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo"><span class="dot" aria-hidden="true">🍒</span> SkinSeoul <small>· Persona Builder</small></div>
+  <div class="spacer"></div>
+  <span class="savestate" id="saveState" aria-live="polite"></span>
+  <div id="topActions" hidden style="display:flex;gap:8px">
+    <button class="btn small" id="btnSave" type="button">💾 Save file</button>
+    <button class="btn small ghost" id="btnHome" type="button">Start screen</button>
+  </div>
+</header>
+
+<!-- ============ START SCREEN ============ -->
+<main id="startView" class="start">
+  <h1>Build an AI influencer</h1>
+  <p class="lead">Fill in this form to describe a new SkinSeoul persona. When the required fields are done, you'll get one clean prompt to paste into ChatGPT (with your reference images attached). Nothing here is sent anywhere — it all stays on your computer.</p>
+  <div class="startgrid">
+    <button class="startcard" type="button" id="startContinue" hidden>
+      <span class="ico" aria-hidden="true">↩️</span><strong>Continue where you left off</strong><span class="d" id="continueInfo"></span>
+    </button>
+    <button class="startcard" type="button" id="startBlank">
+      <span class="ico" aria-hidden="true">✨</span><strong>Start blank</strong><span class="d">An empty form with SkinSeoul brand rules already filled in.</span>
+    </button>
+    <button class="startcard" type="button" id="startRemi">
+      <span class="ico" aria-hidden="true">🍒</span><strong>Load Remi preset</strong><span class="d">Persona #1, fully filled in. Great as an example or a starting point.</span>
+    </button>
+    <button class="startcard" type="button" id="startOpen">
+      <span class="ico" aria-hidden="true">📂</span><strong>Open saved file</strong><span class="d">Open a persona .json file you saved earlier.</span>
+    </button>
+  </div>
+  <input type="file" id="openFile" accept=".json,application/json" hidden>
+  <p class="startnote">Tip: your work autosaves in this browser, but use <strong>💾 Save file</strong> to keep a real copy you can share with the team.</p>
+</main>
+
+<!-- ============ BUILDER ============ -->
+<div id="builderView" class="app" hidden>
+  <nav class="side" aria-label="Form sections">
+    <ol class="nav" id="nav"></ol>
+    <div class="legend" aria-hidden="true">
+      <span><b class="st ok">✓</b> required fields done</span>
+      <span><b class="st warn">!</b> started, required missing</span>
+      <span><b class="st none">○</b> not started</span>
+    </div>
+  </nav>
+  <main id="main" tabindex="-1"></main>
+  <aside class="summary" id="summary" aria-label="Persona summary">
+    <button class="drawer-toggle" type="button" id="drawerToggle" aria-expanded="false" aria-controls="drawerBody"></button>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   SkinSeoul Persona Builder — offline, no AI connection, no API calls.
+   Data: one JSON object per persona (see toPersonaJSON()).
+   ===================================================================== */
+
+const SCHEMA = "skinseoul.persona/v1";
+const AUTOSAVE_KEY = "skinseoul-persona-builder:autosave";
+
+const DEFAULT_BRAND_RULES = [
+  "Always disclosed as AI and owned by SkinSeoul (in the bio and at the bottom of every caption)",
+  "No product efficacy claims, no before/after, no \"this cleared my skin\"",
+  "Never feature competitors (e.g., Olive Young)",
+  "Avoid: body/weight/insecurity content, diets, politics, religion, gossip about real people",
+  "Face references must be AI-generated or from a model with written consent. Never a real person's likeness without consent."
+];
+
+/* ---------- Form definition ----------
+   status: req = required · opt = optional · ai = optional with "Let AI suggest" toggle
+   type: text | number | date | textarea | list (one per line) | chips (pick one) | multichips (pick many)
+         | color | ratio | images | checkbox                                                      */
+const SECTIONS = [
+  { key:"identity", letter:"A", title:"Identity", desc:"Who she is at a glance: name, handle, audience and vibe.", fields:[
+    {id:"name", label:"Name", type:"text", status:"req", placeholder:"e.g. Remi", help:"Her first name: short, easy to say, easy to search."},
+    {id:"handle", label:"Handle", type:"text", status:"req", placeholder:"@", help:"Her Instagram/TikTok username. Check it's free on both."},
+    {id:"branding", label:"Branding line", type:"text", status:"opt", placeholder:"A 3–6 word tagline", help:"A short tagline that sums her up."},
+    {id:"oneSentence", label:"In one sentence", type:"textarea", status:"req", help:"Who she is, where she's from and what makes her different, in one sentence."},
+    {id:"archetype", label:"Archetype", type:"chips", status:"ai", custom:true,
+      options:["Queen bee, but kind","Girl next door","Cool older sister","Chaotic bestie","Main character","Soft-spoken artist","Wellness girl"],
+      help:"The social 'type' she plays that fans instantly recognize."},
+    {id:"audience", label:"Target audience", type:"textarea", status:"req", help:"Who she's talking to: country, age, gender, interests."},
+    {id:"homeBase", label:"Home base", type:"text", status:"req", placeholder:"City · Neighborhood", help:"City + neighborhood she 'lives' in. Shapes backgrounds and slang."},
+    {id:"birthday", label:"Birthday", type:"date", status:"opt", help:"Used for birthday posts and her star sign."},
+    {id:"fanName", label:"Fan name", type:"text", status:"ai", help:"What she calls her followers."},
+    {id:"catchphrases", label:"Catchphrases", type:"list", status:"ai", help:"Lines she repeats so people recognize her voice."}
+  ]},
+  { key:"appearance", letter:"B", title:"Appearance", desc:"How she looks. Be specific so every image matches.", fields:[
+    {id:"ethnicity", label:"Ethnicity / heritage", type:"text", status:"req", help:"How her heritage should read on camera."},
+    {id:"age", label:"Age", type:"number", status:"req", min:18, max:99, help:"Her apparent age. Always 18 or older."},
+    {id:"skin", label:"Skin tone & undertone", type:"text", status:"req", help:"Skin tone, undertone and finish (glow, matte…)."},
+    {id:"build", label:"Build", type:"chips", status:"opt", custom:true, options:["Petite","Slim","Athletic","Average","Curvy"], help:"Her general body type."},
+    {id:"height", label:"Height", type:"number", status:"opt", suffix:"cm", min:120, max:220, help:"Helps keep proportions consistent next to objects and people."},
+    {id:"hairColor", label:"Hair color", type:"color", status:"req", help:"Color in words + a hex code so every image matches exactly."},
+    {id:"hairStyle", label:"Hair style", type:"text", status:"req", help:"Length, cut and texture."},
+    {id:"makeup", label:"Makeup", type:"text", status:"opt", help:"Her default, everyday makeup look."},
+    {id:"eyes", label:"Eyes", type:"text", status:"opt", help:"Eye color (and shape, if it matters)."},
+    {id:"faceRefs", label:"Face references 📷", type:"images", status:"req", help:"The images that define her face. AI-generated or from a consented model ONLY."},
+    {id:"faceConsent", label:"Consent check", type:"checkbox", status:"req",
+      text:"I confirm every face reference is AI-generated or from a model who gave written consent. No real person's likeness without consent.",
+      help:"Brand rule: never use a real person's likeness without written consent."}
+  ]},
+  { key:"personality", letter:"C", title:"Personality & voice", desc:"How she thinks, talks and reacts.", fields:[
+    {id:"traits", label:"Personality traits", type:"multichips", status:"req", custom:true,
+      options:["Confident","Curious","Witty","Warm","Opinionated","Playful","Chill","Dreamy","Bold","Sarcastic","Nurturing","Ambitious"],
+      help:"Pick 3–5 words that describe her."},
+    {id:"mbti", label:"MBTI direction", type:"text", status:"ai", help:"A personality-type shortcut so writers and ChatGPT get her vibe fast."},
+    {id:"speechStyle", label:"Speech style", type:"textarea", status:"req", help:"How she writes and talks: tone, slang, languages, punctuation, how captions end."},
+    {id:"emojis", label:"Emojis", type:"text", status:"opt", help:"Her emoji set and how many per caption."},
+    {id:"neverDo", label:"Never says / never does", type:"list", status:"req", help:"Hard lines for this persona."},
+    {id:"expressions", label:"Signature expressions", type:"list", status:"opt", help:"Her go-to face or pose per content type."},
+    {id:"quirks", label:"Quirks", type:"list", status:"ai", help:"Small, funny, relatable habits."},
+    {id:"hotTakes", label:"Hot takes", type:"list", status:"ai", help:"Safe, fun, debatable opinions she's known for."}
+  ]},
+  { key:"lifestyle", letter:"D", title:"Lifestyle", desc:"Where she goes and what her days look like.", fields:[
+    {id:"placesOften", label:"Places: often", type:"list", status:"opt", help:"Places that show up in most of her posts."},
+    {id:"placesSometimes", label:"Places: sometimes", type:"list", status:"opt", help:"Places she visits now and then."},
+    {id:"placesRarely", label:"Places: rarely", type:"list", status:"opt", help:"Special-occasion places."},
+    {id:"placesNever", label:"Places: never", type:"list", status:"opt", help:"Places she never goes to or tags (e.g. competitor stores)."},
+    {id:"dailyRoutine", label:"Daily routine", type:"textarea", status:"opt", help:"A typical day, in order. Gives the team easy content ideas."},
+    {id:"weeklyRoutine", label:"Weekly routine", type:"textarea", status:"opt", help:"A recurring weekly ritual."},
+    {id:"travel", label:"Travel", type:"textarea", status:"opt", help:"Where she travels and how often."},
+    {id:"postRatio", label:"Post location ratio", type:"ratio", status:"opt", help:"Where her posts happen, in %. Should add up to 100."},
+    {id:"drink", label:"Signature drink", type:"text", status:"ai", help:"A drink fans associate with her."},
+    {id:"hobbies", label:"Hobbies", type:"list", status:"ai", help:"What she does for fun (props and content ideas!)."},
+    {id:"music", label:"Music taste", type:"textarea", status:"opt", help:"Genres and artists on her playlist."}
+  ]},
+  { key:"style", letter:"E", title:"Style", desc:"Her fashion and visual identity.", fields:[
+    {id:"fashionStyle", label:"Fashion style", type:"text", status:"req", help:"Her overall fashion vibe in a few words."},
+    {id:"colorRatio", label:"Wardrobe color ratio", type:"ratio", status:"opt", help:"Her outfit color palette, in %. Should add up to 100."},
+    {id:"signatureItem", label:"Signature item", type:"text", status:"ai", help:"One recurring item that makes every outfit 'hers'."},
+    {id:"cameras", label:"Cameras she shoots with", type:"multichips", status:"opt", custom:true,
+      options:["iPhone","Digicam","Film camera","Instax","Kodak Charmera keychain","Photo booth"], help:"Sets the photo look (phone, flash digicam, film…)."},
+    {id:"styleRefs", label:"Style references 📷", type:"images", status:"opt", help:"Outfit, mood board or location images."}
+  ]},
+  { key:"content", letter:"F", title:"Content", desc:"What she posts and where.", fields:[
+    {id:"mainNiche", label:"Main niche", type:"chips", status:"req", custom:true, options:["K-Beauty","Fashion","Lifestyle","K-pop","Food","Travel"], help:"The one topic she's mainly known for."},
+    {id:"otherNiches", label:"Other niches", type:"multichips", status:"opt", custom:true, options:["K-Beauty","Fashion","Lifestyle","K-pop","Food","Travel"], help:"Side topics that keep her feed varied."},
+    {id:"mainPlatform", label:"Main platform", type:"chips", status:"req", options:["Instagram","TikTok","YouTube Shorts","Pinterest"], help:"Where she posts first and best."},
+    {id:"otherPlatforms", label:"Other platforms", type:"multichips", status:"opt", options:["Instagram","TikTok","YouTube Shorts","Pinterest","X / Threads"], help:"Where she also shows up."},
+    {id:"weeklySeries", label:"Weekly series", type:"list", status:"ai", help:"Recurring formats, one per weekday slot."},
+    {id:"aiTwist", label:"AI twist", type:"textarea", status:"ai", help:"How she plays with being AI: a recurring 'only an AI could do this' moment."}
+  ]},
+  { key:"rules", letter:"G", title:"Brand rules", desc:"SkinSeoul rules that apply to every persona. Pre-filled: edit only if the brand team agrees.", fields:[
+    {id:"brandRules", label:"SkinSeoul brand rules", type:"list", status:"req", rows:7, help:"Company-wide rules. ChatGPT must follow these for every suggestion."},
+    {id:"extraRules", label:"Extra rules for this persona", type:"list", status:"opt", help:"Anything extra just for this persona."},
+    {id:"rulesConfirmed", label:"Confirmation", type:"checkbox", status:"req", text:"I've read the brand rules and this persona follows them.", help:"A quick double-check before generating the prompt."}
+  ]},
+  { key:"review", letter:"H", title:"Review & Generate", desc:"Check what's missing, then generate the ChatGPT prompt.", fields:[] }
+];
+
+const FIELDS = {};
+SECTIONS.forEach(s => s.fields.forEach(f => { f.sec = s.key; FIELDS[f.id] = f; }));
+
+/* ---------- Remi preset (persona #1) ---------- */
+const REMI = {
+  identity:{
+    name:"Remi", handle:"@dailyremi_", branding:"The IT girl from LA",
+    oneSentence:"SkinSeoul's AI it-girl from LA's Koreatown who tries every trend first, has an opinion on all of them, and knows she's made of pixels.",
+    archetype:"Queen bee, but kind",
+    audience:"US Gen Z women 18–25 into K-beauty, fashion and K-pop",
+    homeBase:"Los Angeles · Koreatown", birthday:"2026-06-08", fanName:"cherries 🍒",
+    catchphrases:["not real, still iconic","okay hear me out…"]
+  },
+  appearance:{
+    ethnicity:"Asian-American", age:22, skin:"Light skin with a healthy natural glow, neutral-warm undertone",
+    build:"Slim", height:168, hairColor:{name:"Dark cherry-red", hex:"#5C0A1E"}, hairStyle:"Long, soft layers",
+    makeup:"Soft glam: glowy skin, glossy lips, subtle eyeliner, natural lashes", eyes:"Dark brown",
+    faceRefs:[{name:"Ver 1 character sheet (front, side, three-quarter, back)"}], faceConsent:true
+  },
+  personality:{
+    traits:["Confident","Curious","Witty","Warm","Opinionated"],
+    mbti:"ENxP (ENTP wit in posts, ENFP warmth with fans)",
+    speechStyle:"Casual, text-message energy, fragments OK, light Gen Z slang (never forced), occasional Korean words (unnie, 맛집). Ends captions with a question.",
+    emojis:"1–2 per caption max, from 🍒 🫧 🩷 ✨",
+    neverDo:["Product efficacy claims","Body/weight talk","Politics","Gossip","Competitor stores","Denying she's AI"],
+    expressions:["Photo: chin-on-hand smirk","Reel: freeze → wink","Hot take: raised eyebrow"],
+    quirks:["Starts 10 trends, finishes 2","Has 47 Pinterest boards","Always late (\"still rendering\")","Fills her cart, never checks out"],
+    hotTakes:["4 good steps beat a 10-step routine","SPF is the only non-negotiable","Photo booth strips > professional photos"]
+  },
+  lifestyle:{
+    placesOften:["Koreatown","Larchmont Village","Melrose/Fairfax","Little Tokyo/Sawtelle"],
+    placesSometimes:["Silver Lake","Arts District","Abbot Kinney"],
+    placesRarely:["Malibu at golden hour","Griffith Observatory"],
+    placesNever:["Olive Young"],
+    dailyRoutine:"Skincare at \"Remi's shelf\" → iced strawberry matcha → café → outing → face mask + playlist",
+    weeklyRoutine:"Friday K-town night: K-BBQ + photo booth strip",
+    travel:"Seoul 2x/year, Tokyo 1x/year",
+    postRatio:[{label:"LA",pct:80},{label:"Seoul",pct:15},{label:"Tokyo",pct:5}],
+    drink:"Iced strawberry matcha",
+    hobbies:["Photo booth strips","Digicam photos","Pinterest","Press-on nails","Making playlists"],
+    music:"K-pop (KATSEYE, aespa, LE SSERAFIM) · R&B (NIKI, keshi) · indie (Laufey, beabadoobee) · hyperpop (PinkPantheress)"
+  },
+  style:{
+    fashionStyle:"LA-meets-Seoul casual",
+    colorRatio:[{label:"White/cream",pct:40},{label:"Denim/soft blue",pct:25},{label:"Cherry/burgundy",pct:20},{label:"Black",pct:10},{label:"Trend color",pct:5}],
+    signatureItem:"One cherry-red item in every outfit",
+    cameras:["iPhone","Digicam","Kodak Charmera keychain"], styleRefs:[]
+  },
+  content:{
+    mainNiche:"K-Beauty", otherNiches:["Fashion","Korean-American LA youth lifestyle"],
+    mainPlatform:"Instagram", otherPlatforms:["TikTok"],
+    weeklySeries:["Mon: \"Remi's K-town #__\"","Wed: \"Okay hear me out…\"","Fri: \"Fit check: ___ edition\""],
+    aiTwist:"One AI-only moment per trend: instant outfit swap, \"loading…\" freeze, or a glitch."
+  },
+  rules:{ brandRules:DEFAULT_BRAND_RULES.slice(), extraRules:[], rulesConfirmed:true }
+};
+
+/* ---------- State ---------- */
+let state = blankState();
+let current = 0;
+let generated = false;
+
+function blankState(){
+  const data = {};
+  SECTIONS.forEach(s => { if (s.fields.length) data[s.key] = {}; });
+  data.rules.brandRules = DEFAULT_BRAND_RULES.slice();
+  return { data, ai:{}, createdAt:new Date().toISOString() };
+}
+const clone = o => JSON.parse(JSON.stringify(o));
+function getVal(id){ const f = FIELDS[id]; return state.data[f.sec][id]; }
+function setVal(id, v){ state.data[FIELDS[id].sec][id] = v; changed(); }
+
+function isFilled(f, v){
+  if (v == null) return false;
+  switch (f.type){
+    case "list": case "multichips": case "images": return Array.isArray(v) && v.length > 0;
+    case "ratio": return Array.isArray(v) && v.some(r => r.label && r.label.trim());
+    case "checkbox": return v === true;
+    case "color": return !!(v.name && v.name.trim());
+    case "number": return v !== "" && !isNaN(v);
+    default: return String(v).trim() !== "";
+  }
+}
+const filled = f => isFilled(f, getVal(f.id));
+const isAI = f => f.status === "ai" && !!state.ai[f.id];
+function missingRequired(){
+  const out = [];
+  SECTIONS.forEach(s => s.fields.forEach(f => { if (f.status === "req" && !filled(f)) out.push(f); }));
+  return out;
+}
+function sectionStatus(s){
+  if (s.key === "review"){ const m = missingRequired().length; return m ? (generated ? "warn" : "none") : "ok"; }
+  const started = s.fields.some(f => filled(f) || isAI(f));
+  if (!started) return "none";
+  return s.fields.some(f => f.status === "req" && !filled(f)) ? "warn" : "ok";
+}
+
+/* ---------- Helpers ---------- */
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})){
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()){
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const $ = id => document.getElementById(id);
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function niceDate(iso){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); return m ? `${MONTHS[+m[2]-1]} ${+m[3]}, ${m[1]}` : iso; }
+
+function fmt(f, v, sep = " · "){
+  if (!isFilled(f, v)) return "";
+  switch (f.type){
+    case "list": case "multichips": return v.join(sep);
+    case "images": return v.map(i => i.name).join(sep);
+    case "ratio": return v.filter(r => r.label).map(r => `${r.label} ${r.pct || 0}%`).join(" / ");
+    case "color": return v.hex ? `${v.name} (${v.hex})` : v.name;
+    case "number": return f.suffix ? `${v} ${f.suffix}` : String(v);
+    case "date": return niceDate(v);
+    case "checkbox": return "Yes";
+    default: return String(v).trim();
+  }
+}
+function exampleFor(f){
+  if (f.type === "checkbox" || f.sec === "rules") return "";
+  const t = fmt(f, REMI[f.sec][f.id]);
+  return t.length > 110 ? t.slice(0, 107) + "…" : t;
+}
+
+let toastTimer;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2400);
+}
+
+/* ---------- Field rendering ---------- */
+function renderField(f){
+  const v = getVal(f.id), ai = isAI(f);
+  const inId = "in-" + f.id, lblId = "lbl-" + f.id;
+  const isGroup = ["chips","multichips","ratio","images","checkbox","color"].includes(f.type);
+  const wrap = h("div", {class:"field" + (ai ? " is-ai" : ""), id:"f-" + f.id});
+
+  const head = h("div", {class:"fhead"},
+    isGroup ? h("span", {class:"flabel", id:lblId}, f.label) : h("label", {class:"flabel", id:lblId, for:inId}, f.label),
+    badge(f), tip(f), h("span", {class:"grow"}),
+    f.status === "ai" ? h("button", {type:"button", class:"aitoggle", role:"switch", "aria-checked":String(ai),
+      "aria-label":"Let AI suggest " + f.label,
+      onclick:() => { state.ai[f.id] = !state.ai[f.id]; rerender(f, ".aitoggle"); changed(); }},
+      h("span", {class:"sw", "aria-hidden":"true"}), "Let AI suggest") : null
+  );
+  const body = h("fieldset", {class:"fbody", "aria-labelledby":lblId});
+  body.disabled = ai;
+  body.append(renderInput(f, v, inId, lblId));
+  if (f.type === "list") body.append(h("p", {class:"hint"}, "One per line."));
+  wrap.append(head, body);
+  if (ai) wrap.append(h("p", {class:"ai-note"}, "✨ ChatGPT will suggest 2–3 options for this. Turn the toggle off to write your own."));
+  return wrap;
+}
+function badge(f){
+  if (f.status === "req") return h("span", {class:"badge req" + (filled(f) ? " done" : "")}, filled(f) ? "Required ✓" : "Required");
+  if (f.status === "ai") return h("span", {class:"badge ai"}, "AI-suggest");
+  return h("span", {class:"badge"}, "Optional");
+}
+function tip(f){
+  const id = "tip-" + f.id, ex = exampleFor(f);
+  return h("span", {class:"tipwrap"},
+    h("button", {type:"button", class:"tip", "aria-label":"Help: " + f.label, "aria-describedby":id}, "?"),
+    h("span", {class:"tipbox", role:"tooltip", id}, h("span", {}, f.help), ex ? h("span", {class:"tipex"}, "Remi: " + ex) : null));
+}
+function rerender(f, focusSel){
+  const old = $("f-" + f.id); if (!old) return;
+  const nu = renderField(f); old.replaceWith(nu);
+  if (focusSel){ const el = nu.querySelector(focusSel); if (el) el.focus(); }
+}
+function refreshBadge(f){
+  const el = $("f-" + f.id); if (!el) return;
+  el.querySelector(".badge").replaceWith(badge(f));
+}
+
+function renderInput(f, v, inId, lblId){
+  const onText = e => { setVal(f.id, e.target.value); refreshBadge(f); };
+  switch (f.type){
+    case "text":
+      return h("input", {type:"text", class:"inp", id:inId, value:v || "", placeholder:f.placeholder || "", oninput:onText, autocomplete:"off"});
+    case "date":
+      return h("input", {type:"date", class:"inp", id:inId, value:v || "", oninput:onText});
+    case "number":
+      return h("div", {class:"withsuffix"},
+        h("input", {type:"number", class:"inp", id:inId, value:v ?? "", min:f.min, max:f.max, inputmode:"numeric",
+          oninput:e => { setVal(f.id, e.target.value === "" ? "" : Number(e.target.value)); refreshBadge(f); }}),
+        f.suffix ? h("span", {}, f.suffix) : null);
+    case "textarea": {
+      const t = h("textarea", {class:"inp", id:inId, rows:3, placeholder:f.placeholder || "", oninput:onText});
+      t.value = v || ""; return t;
+    }
+    case "list": {
+      const t = h("textarea", {class:"inp", id:inId, rows:f.rows || 4,
+        oninput:e => { setVal(f.id, e.target.value.split("\n").map(s => s.trim()).filter(Boolean)); refreshBadge(f); }});
+      t.value = (v || []).join("\n"); return t;
+    }
+    case "chips": case "multichips": return renderChips(f, v, lblId);
+    case "color": return renderColor(f, v || {name:"", hex:""});
+    case "ratio": return renderRatio(f, v || []);
+    case "images": return renderImages(f, v || []);
+    case "checkbox":
+      return h("label", {class:"check"},
+        h("input", {type:"checkbox", id:inId, checked:v === true, onchange:e => { setVal(f.id, e.target.checked); refreshBadge(f); }}),
+        h("span", {}, f.text));
+  }
+}
+
+function renderChips(f, v, lblId){
+  const multi = f.type === "multichips";
+  const sel = multi ? (v || []) : (v ? [v] : []);
+  const all = f.options.concat(sel.filter(x => !f.options.includes(x)));
+  const group = h("div", {class:"chips", role:"group", "aria-labelledby":lblId});
+  all.forEach(opt => group.append(h("button", {type:"button", class:"chip", "aria-pressed":String(sel.includes(opt)),
+    onclick:() => {
+      let nv;
+      if (multi){ const cur = getVal(f.id) || []; nv = cur.includes(opt) ? cur.filter(x => x !== opt) : cur.concat(opt); }
+      else nv = getVal(f.id) === opt ? "" : opt;
+      setVal(f.id, nv);
+      const s = multi ? nv : (nv ? [nv] : []);
+      group.querySelectorAll(".chip").forEach(b => b.setAttribute("aria-pressed", String(s.includes(b.dataset.v))));
+      refreshBadge(f);
+    }, "data-v":opt}, opt)));
+  const frag = h("div", {}, group);
+  if (f.custom){
+    const inp = h("input", {type:"text", class:"inp", placeholder:"Add your own…", "aria-label":"Add your own option for " + f.label, id:"add-" + f.id});
+    const add = () => {
+      const t = inp.value.trim(); if (!t) return;
+      if (multi){ const cur = getVal(f.id) || []; if (!cur.includes(t)) setVal(f.id, cur.concat(t)); }
+      else setVal(f.id, t);
+      rerender(f, "#add-" + f.id);
+    };
+    inp.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); add(); } });
+    frag.append(h("div", {class:"addrow"}, inp, h("button", {type:"button", class:"btn small", onclick:add}, "+ Add")));
+  }
+  return frag;
+}
+
+function renderColor(f, v){
+  const hexOk = s => /^#[0-9a-fA-F]{6}$/.test(s);
+  const update = patch => { const nv = Object.assign({}, getVal(f.id) || {name:"", hex:""}, patch); setVal(f.id, nv); refreshBadge(f); };
+  const picker = h("input", {type:"color", value:hexOk(v.hex) ? v.hex : "#5C0A1E", "aria-label":f.label + " color picker"});
+  const hex = h("input", {type:"text", class:"inp hex", value:v.hex || "", placeholder:"#hex code", "aria-label":f.label + " hex code", maxlength:7});
+  const name = h("input", {type:"text", class:"inp", id:"in-" + f.id, value:v.name || "", placeholder:"Describe it in words", "aria-label":f.label + " in words"});
+  picker.addEventListener("input", () => { hex.value = picker.value.toUpperCase(); update({hex:hex.value}); });
+  hex.addEventListener("input", () => { let s = hex.value.trim(); if (s && s[0] !== "#") s = "#" + s; if (hexOk(s)) picker.value = s; update({hex:s}); });
+  name.addEventListener("input", () => update({name:name.value}));
+  return h("div", {class:"colorrow"}, picker, name, hex);
+}
+
+const BAR_COLORS = ["#C2185B","#F06A96","#9A9AA3","#3DDC97","#F5B83D","#6C8CFF","#B38BFA"];
+function renderRatio(f, rows){
+  if (!rows.length) rows = [{label:"", pct:""}];
+  const box = h("div", {class:"ratio"});
+  const total = () => (getVal(f.id) || []).reduce((a, r) => a + (Number(r.pct) || 0), 0);
+  const totalEl = h("span", {class:"total", "aria-live":"polite"});
+  const bar = h("div", {class:"ratiobar", "aria-hidden":"true"});
+  const paint = () => {
+    const t = total(); totalEl.textContent = `Total: ${t}%` + (t === 100 ? " ✓" : " (aim for 100%)");
+    totalEl.className = "total " + (t === 100 ? "ok" : "warn");
+    bar.replaceChildren(...(getVal(f.id) || []).map((r, i) => h("i", {style:`width:${Math.max(0, Number(r.pct) || 0)}%;background:${BAR_COLORS[i % BAR_COLORS.length]}`})));
+  };
+  const save = () => { setVal(f.id, rows.map(r => ({label:r.label, pct:r.pct === "" ? "" : Number(r.pct)}))); paint(); refreshBadge(f); };
+  rows.forEach((r, i) => {
+    box.append(h("div", {class:"ratiorow"},
+      h("input", {type:"text", class:"inp", value:r.label, placeholder:"Label (e.g. LA)", "aria-label":`${f.label} row ${i + 1} label`, id:i === 0 ? "in-" + f.id : null,
+        oninput:e => { r.label = e.target.value; save(); }}),
+      h("span", {class:"pct"}, h("input", {type:"number", class:"inp", value:r.pct, min:0, max:100, "aria-label":`${f.label} row ${i + 1} percent`,
+        oninput:e => { r.pct = e.target.value; save(); }}), h("span", {}, "%")),
+      h("button", {type:"button", class:"iconbtn", "aria-label":`Remove row ${i + 1}`, onclick:() => {
+        rows.splice(i, 1); setVal(f.id, rows); rerender(f, ".ratio-add"); }}, "✕")));
+  });
+  box.append(bar, h("div", {class:"ratiofoot"},
+    h("button", {type:"button", class:"btn small ratio-add", onclick:() => {
+      rows.push({label:"", pct:""}); setVal(f.id, rows); rerender(f); const ins = $("f-" + f.id).querySelectorAll(".ratiorow input[type=text]"); ins[ins.length - 1].focus(); }}, "+ Add row"),
+    totalEl));
+  setTimeout(paint);
+  return box;
+}
+
+function renderImages(f, items){
+  const fileIn = h("input", {type:"file", accept:"image/*", multiple:true, class:"sr-only", id:"file-" + f.id, tabindex:"-1"});
+  const drop = h("label", {class:"drop", for:"file-" + f.id, tabindex:"0", role:"button", "aria-label":"Add images for " + f.label},
+    h("span", {"aria-hidden":"true", style:"font-size:22px"}, "📷"),
+    h("strong", {}, "Click or drop images here"),
+    h("span", {}, "Files stay on your computer. You'll attach the originals in ChatGPT."));
+  const addFiles = async files => {
+    const cur = (getVal(f.id) || []).slice();
+    for (const file of files){ if (!file.type.startsWith("image/")) continue; cur.push({name:file.name, thumb:await makeThumb(file)}); }
+    setVal(f.id, cur); rerender(f, ".drop");
+  };
+  fileIn.addEventListener("change", () => addFiles([...fileIn.files]));
+  drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); fileIn.click(); } });
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files]); });
+
+  const list = h("div", {class:"imgs"});
+  items.forEach((it, i) => list.append(h("div", {class:"imgitem"},
+    h("div", {class:"thumb"}, it.thumb ? h("img", {src:it.thumb, alt:""}) : h("span", {"aria-hidden":"true"}, "🖼️")),
+    h("div", {class:"meta"}, h("span", {}, it.name),
+      h("button", {type:"button", class:"iconbtn", "aria-label":"Remove " + it.name, onclick:() => {
+        const cur = getVal(f.id).slice(); cur.splice(i, 1); setVal(f.id, cur); rerender(f, ".drop"); }}, "✕")))));
+
+  const nameIn = h("input", {type:"text", class:"inp", placeholder:"…or add one by name (file is elsewhere)", "aria-label":"Add a reference by name for " + f.label, id:"addimg-" + f.id});
+  const addName = () => { const t = nameIn.value.trim(); if (!t) return; setVal(f.id, (getVal(f.id) || []).concat({name:t})); rerender(f, "#addimg-" + f.id); };
+  nameIn.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); addName(); } });
+  return h("div", {}, fileIn, drop, items.length ? list : null,
+    h("div", {class:"addrow"}, nameIn, h("button", {type:"button", class:"btn small", onclick:addName}, "+ Add")));
+}
+function makeThumb(file){
+  return new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = 200, c = document.createElement("canvas"), r = Math.max(s / img.width, s / img.height);
+      c.width = c.height = s;
+      c.getContext("2d").drawImage(img, (s - img.width * r) / 2, (s - img.height * r) / 2, img.width * r, img.height * r);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
+
+/* ---------- Navigation / sections ---------- */
+function renderNav(){
+  const nav = $("nav"); nav.replaceChildren();
+  SECTIONS.forEach((s, i) => {
+    const st = sectionStatus(s), sym = {ok:"✓", warn:"!", none:"○"}[st];
+    const lbl = {ok:"done", warn:"required fields missing", none:"not started"}[st];
+    nav.append(h("li", {}, h("button", {type:"button", class:"navbtn", "aria-current":i === current ? "step" : null,
+      onclick:() => goTo(i)},
+      h("span", {class:"letter", "aria-hidden":"true"}, s.letter),
+      h("span", {class:"ntitle"}, s.title, h("span", {class:"sr-only"}, `, section ${s.letter}, ${lbl}`)),
+      h("span", {class:"st " + st, "aria-hidden":"true"}, sym))));
+  });
+}
+function goTo(i, focusMain = true){
+  current = i; renderSection(); renderNav();
+  window.scrollTo({top:0});
+  const btn = $("nav").children[i]; if (btn) btn.scrollIntoView({block:"nearest", inline:"nearest"});
+  if (focusMain) $("main").focus({preventScroll:true});
+}
+function renderSection(){
+  const s = SECTIONS[current], main = $("main");
+  main.replaceChildren(h("div", {class:"sechead"},
+    h("div", {class:"kicker"}, `Section ${s.letter} of H`), h("h2", {}, s.title), h("p", {}, s.desc)));
+  if (s.key === "review") main.append(renderReview());
+  else main.append(h("div", {class:"fields"}, s.fields.map(renderField)));
+  const prev = SECTIONS[current - 1], next = SECTIONS[current + 1];
+  main.append(h("div", {class:"secfoot"},
+    prev ? h("button", {type:"button", class:"btn", onclick:() => goTo(current - 1)}, `← ${prev.letter}. ${prev.title}`) : h("span"),
+    next ? h("button", {type:"button", class:"btn primary", onclick:() => goTo(current + 1)}, `${next.letter}. ${next.title} →`) : h("span")));
+}
+function jumpToField(f){
+  const idx = SECTIONS.findIndex(s => s.key === f.sec);
+  goTo(idx, false);
+  $("summary").classList.remove("open"); $("drawerToggle").setAttribute("aria-expanded", "false");
+  const el = $("f-" + f.id); if (!el) return;
+  el.scrollIntoView({block:"center"});
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  const target = el.querySelector("fieldset input:not([type=file]), fieldset textarea, fieldset .chip, fieldset .drop") ;
+  if (target) target.focus({preventScroll:true});
+}
+
+/* ---------- Summary card ---------- */
+function renderSummary(){
+  const d = state.data, id = d.identity, ap = d.appearance;
+  const miss = missingRequired();
+  const reqTotal = Object.values(FIELDS).filter(f => f.status === "req").length;
+  const done = reqTotal - miss.length;
+  const name = (id.name || "").trim();
+  const hair = ap.hairColor && /^#[0-9a-fA-F]{6}$/.test(ap.hairColor.hex) ? ap.hairColor.hex : "#5C0A1E";
+  const face = (ap.faceRefs || []).find(i => i.thumb);
+  const tagsFor = [];
+  const addTag = (fid, prefix = "") => {
+    const f = FIELDS[fid];
+    if (isAI(f)) tagsFor.push(h("span", {class:"tag ai"}, `${f.label}: AI will suggest`));
+    else if (filled(f)) tagsFor.push(h("span", {class:"tag"}, prefix + fmt(f, getVal(fid), ", ")));
+  };
+  addTag("archetype"); addTag("homeBase", "📍 "); addTag("age", "Age "); addTag("mainNiche"); addTag("mainPlatform");
+  addTag("fanName", "Fans: ");
+  const traits = d.personality.traits || [];
+
+  const card = h("div", {class:"pcard", style:`--hair:${hair}`},
+    h("div", {class:"cover"}),
+    h("div", {class:"avatar", "aria-hidden":"true"}, face ? h("img", {src:face.thumb, alt:""}) : (name ? name[0].toUpperCase() : "?")),
+    h("div", {class:"pname"}, name || "Unnamed persona"),
+    id.handle ? h("div", {class:"phandle"}, id.handle) : null,
+    id.branding ? h("div", {class:"pbrand"}, "“" + id.branding + "”") : null,
+    id.oneSentence ? h("p", {class:"psent"}, id.oneSentence) : h("p", {class:"psent", style:"color:var(--muted)"}, "Her one-sentence description will show here."),
+    tagsFor.length ? h("div", {class:"tags"}, tagsFor) : null,
+    traits.length ? h("div", {class:"tags"}, traits.map(t => h("span", {class:"tag"}, t))) : null);
+
+  const pct = Math.round(done / reqTotal * 100);
+  const prog = h("div", {class:"panel"},
+    h("h3", {}, `Required fields: ${done} / ${reqTotal}`),
+    h("div", {class:"bar", role:"progressbar", "aria-valuemin":0, "aria-valuemax":reqTotal, "aria-valuenow":done, "aria-label":"Required fields completed"},
+      h("i", {class:pct === 100 ? "full" : "", style:`width:${pct}%`})));
+
+  const missPanel = h("div", {class:"panel"}, h("h3", {}, "Missing required"),
+    miss.length ? h("ul", {class:"missing"}, miss.map(f => h("li", {},
+      h("span", {class:"sl", "aria-hidden":"true"}, SECTIONS.find(s => s.key === f.sec).letter),
+      h("button", {type:"button", class:"linkbtn", onclick:() => jumpToField(f)}, f.label.replace(" 📷", "")))))
+    : h("p", {class:"alldone"}, "✓ All required fields done. Go to H. Review & Generate."));
+
+  $("drawerBody").replaceChildren(card, prog, missPanel);
+  $("drawerToggle").replaceChildren(
+    h("span", {}, `${name || "Persona"} · ${miss.length ? miss.length + " required left" : "ready ✓"}`),
+    h("span", {"aria-hidden":"true"}, $("summary").classList.contains("open") ? "▼" : "▲"));
+}
+
+/* ---------- Prompt assembly ---------- */
+const BRIEF_SKIP = new Set(["faceConsent","rulesConfirmed","faceRefs","styleRefs","brandRules","extraRules"]);
+let askOptional = false;
+
+function buildPrompt(){
+  const d = state.data, name = d.identity.name.trim(), handle = d.identity.handle.trim();
+  const L = [];
+  const suggest = Object.values(FIELDS).filter(isAI);
+  const emptyOpt = Object.values(FIELDS).filter(f => f.status !== "req" && !isAI(f) && !filled(f) && !BRIEF_SKIP.has(f.id));
+  const images = imagesToAttach();
+
+  L.push(`# SkinSeoul AI influencer — persona setup: ${name} (${handle})`, "");
+  L.push("Hi! I'm on the content team at SkinSeoul, a K-beauty e-commerce company. We're creating an AI influencer. Below is the persona brief from our Persona Builder form." +
+    (images.length ? " The reference images listed at the bottom are attached to this message." : ""), "");
+  L.push("## What I need from you");
+  L.push("1. Read the whole brief" + (images.length ? " and look at the attached images." : "."));
+  L.push(suggest.length
+    ? "2. For each item under \"PLEASE SUGGEST\", give 2–3 options that fit her identity, audience and personality. Number them 1A, 1B, 1C, 2A… so I can reply with just the codes."
+    : "2. Everything is filled in, so there's nothing to suggest. Just review it.");
+  L.push("3. Flag anything that feels inconsistent, off-brand, or that breaks a brand rule, and propose a fix.");
+  L.push("4. Don't create any images yet. Wait for my picks; after that we'll make her character sheet.");
+  L.push("5. Every suggestion must follow the brand rules below.", "");
+
+  if (suggest.length){
+    L.push("## PLEASE SUGGEST");
+    suggest.forEach((f, i) => L.push(`${i + 1}. ${f.label}: ${f.help}`));
+    L.push("");
+  }
+
+  L.push("## Persona brief");
+  SECTIONS.forEach(s => {
+    if (s.key === "rules" || s.key === "review") return;
+    const lines = [];
+    s.fields.forEach(f => {
+      if (BRIEF_SKIP.has(f.id)) return;
+      if (isAI(f)){ lines.push(`- ${f.label}: [PLEASE SUGGEST]`); return; }
+      const v = getVal(f.id);
+      if (!isFilled(f, v)) return;
+      if (f.type === "list") { lines.push(`- ${f.label}:`); v.forEach(x => lines.push(`  - ${x}`)); }
+      else lines.push(`- ${f.label}: ${fmt(f, v, ", ")}`);
+    });
+    if (lines.length){ L.push("", `### ${s.letter}. ${s.title}`, ...lines); }
+  });
+  L.push("");
+
+  L.push("## Brand rules (non-negotiable)");
+  (d.rules.brandRules || []).forEach(r => L.push(`- ${r}`));
+  (d.rules.extraRules || []).forEach(r => L.push(`- ${r} (persona-specific)`));
+  L.push("");
+
+  if (askOptional && emptyOpt.length){
+    L.push("## Bonus (keep it short)", "I left these empty. Give one quick idea for each:");
+    emptyOpt.forEach(f => L.push(`- ${f.label}`));
+    L.push("");
+  }
+
+  if (images.length){
+    L.push("## Reference images attached");
+    images.forEach(i => L.push(`- ${i.kind}: ${i.name}`));
+    L.push("Face references are AI-generated or from a model with written consent. Keep her face consistent with them.");
+  } else {
+    L.push("## Reference images", "None attached this time.");
+  }
+  return L.join("\n");
+}
+function imagesToAttach(){
+  const out = [];
+  (state.data.appearance.faceRefs || []).forEach(i => out.push({kind:"Face reference", name:i.name, hasFile:!!i.thumb}));
+  (state.data.style.styleRefs || []).forEach(i => out.push({kind:"Style reference", name:i.name, hasFile:!!i.thumb}));
+  return out;
+}
+
+function renderReview(){
+  const wrap = h("div", {});
+  const miss = missingRequired();
+  if (miss.length){
+    wrap.append(h("div", {class:"box warn", role:"status"},
+      h("h3", {}, `⚠️ ${miss.length} required field${miss.length > 1 ? "s" : ""} left before you can generate`),
+      h("ul", {}, miss.map(f => h("li", {}, h("button", {type:"button", class:"linkbtn", onclick:() => jumpToField(f)},
+        `${SECTIONS.find(s => s.key === f.sec).letter}. ${f.label.replace(" 📷", "")}`))))));
+  } else {
+    wrap.append(h("div", {class:"box ok", role:"status"}, h("h3", {}, "✓ All required fields are done"),
+      h("p", {style:"margin:0;color:var(--muted)"}, "Click Generate to build the ChatGPT prompt.")));
+  }
+
+  const suggest = Object.values(FIELDS).filter(isAI);
+  wrap.append(h("div", {class:"box"},
+    h("h3", {}, `✨ ChatGPT will suggest options for ${suggest.length} field${suggest.length === 1 ? "" : "s"}`),
+    suggest.length ? h("p", {style:"margin:0;color:var(--muted)"}, suggest.map(f => f.label).join(" · ")) :
+      h("p", {style:"margin:0;color:var(--muted)"}, "None. Turn on \"Let AI suggest\" on a field if you want ideas."),
+    h("label", {class:"check", style:"margin-top:12px"},
+      h("input", {type:"checkbox", checked:askOptional, onchange:e => { askOptional = e.target.checked; updateOutput(); }}),
+      h("span", {}, "Also ask for one quick idea for each optional field I left empty"))));
+
+  const gen = h("button", {type:"button", class:"btn primary", "aria-disabled":miss.length ? "true" : null,
+    onclick:() => {
+      if (missingRequired().length){ toast("Fill in the required fields first."); return; }
+      generated = true; renderSection(); renderNav();
+      const p = $("promptOut"); if (p){ p.scrollIntoView({block:"start"}); p.focus(); }
+    }}, generated && !miss.length ? "↻ Regenerate prompt" : "Generate prompt");
+  wrap.append(h("div", {class:"btnrow"}, gen,
+    miss.length ? h("span", {style:"color:var(--muted);font-size:13px;align-self:center"}, "Locked until required fields are done.") : null));
+
+  if (generated && !miss.length){
+    const ta = h("textarea", {class:"prompt", id:"promptOut", readonly:true, "aria-label":"Generated ChatGPT prompt"});
+    ta.value = buildPrompt();
+    const images = imagesToAttach();
+    wrap.append(
+      h("div", {class:"box"}, h("h3", {}, "1 · Your prompt"), ta,
+        h("div", {class:"btnrow"},
+          h("button", {type:"button", class:"btn primary", onclick:() => copyText(ta)}, "📋 Copy prompt"),
+          h("button", {type:"button", class:"btn", onclick:() => download(`prompt-${slug()}.txt`, ta.value, "text/plain")}, "⬇️ Download as .txt"),
+          h("button", {type:"button", class:"btn", onclick:saveFile}, "💾 Save persona file"))),
+      h("div", {class:"box"}, h("h3", {}, `2 · Images to attach in ChatGPT (${images.length})`),
+        images.length ? h("ul", {style:"list-style:none;padding:0"}, images.map(i => h("li", {}, h("label", {class:"check"},
+          h("input", {type:"checkbox"}), h("span", {}, h("strong", {}, i.kind + ": "), i.name,
+            i.hasFile ? "" : h("span", {style:"color:var(--muted)"}, " (find this file on your computer)"))))))
+        : h("p", {style:"margin:0;color:var(--muted)"}, "No images added. Face references are strongly recommended.")),
+      h("div", {class:"box"}, h("h3", {}, "3 · Next steps"),
+        h("ol", {},
+          h("li", {}, "Open ChatGPT and start a new chat."),
+          h("li", {}, "Attach the images listed above (paperclip icon)."),
+          h("li", {}, "Paste the prompt and send."),
+          h("li", {}, "Pick your favorites from ChatGPT's options (reply with codes like \"1B, 2A\"). Get team approval."),
+          h("li", {}, "Come back here, turn OFF \"Let AI suggest\" on those fields and type in the picks."),
+          h("li", {}, "💾 Save the persona file and share it with the team."),
+          h("li", {}, "Next: character sheet images → lock her face in Higgsfield Soul ID."))));
+  }
+  return wrap;
+}
+function updateOutput(){ const ta = $("promptOut"); if (ta && !missingRequired().length) ta.value = buildPrompt(); }
+
+async function copyText(ta){
+  try { await navigator.clipboard.writeText(ta.value); }
+  catch { ta.select(); document.execCommand("copy"); }
+  toast("Prompt copied ✓ Paste it into ChatGPT");
+}
+
+/* ---------- Save / open / autosave ---------- */
+function slug(){ return ((state.data.identity.name || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")) || "untitled"; }
+
+/* One clean JSON object per persona. A developer can map these keys straight to an API later. */
+function toPersonaJSON(){
+  return {
+    schema: SCHEMA,
+    createdAt: state.createdAt,
+    updatedAt: new Date().toISOString(),
+    aiSuggest: Object.keys(state.ai).filter(k => state.ai[k]),
+    ...clone(state.data)
+  };
+}
+function fromPersonaJSON(obj){
+  if (!obj || typeof obj !== "object" || !obj.identity) throw new Error("This doesn't look like a persona file.");
+  const s = blankState();
+  SECTIONS.forEach(sec => sec.fields.forEach(f => {
+    if (obj[sec.key] && obj[sec.key][f.id] !== undefined) s.data[sec.key][f.id] = obj[sec.key][f.id];
+  }));
+  (obj.aiSuggest || []).forEach(k => { if (FIELDS[k] && FIELDS[k].status === "ai") s.ai[k] = true; });
+  if (obj.createdAt) s.createdAt = obj.createdAt;
+  return s;
+}
+function download(filename, text, type){
+  const a = h("a", {href:URL.createObjectURL(new Blob([text], {type})), download:filename});
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function saveFile(){ download(`persona-${slug()}.json`, JSON.stringify(toPersonaJSON(), null, 2), "application/json"); toast("Saved persona file ✓"); }
+
+let saveTimer;
+function changed(){
+  renderNav(); renderSummary(); updateOutput();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(toPersonaJSON())); $("saveState").textContent = "Autosaved in this browser"; }
+    catch { $("saveState").textContent = "Autosave unavailable: use Save file"; }
+  }, 400);
+}
+function readAutosave(){ try { const r = localStorage.getItem(AUTOSAVE_KEY); return r ? JSON.parse(r) : null; } catch { return null; } }
+
+/* ---------- Start screen ---------- */
+function openBuilder(newState){
+  state = newState; generated = false; current = 0;
+  $("startView").hidden = true; $("builderView").hidden = false; $("topActions").hidden = false;
+  goTo(0); changed();
+}
+function confirmReplace(){
+  const a = readAutosave(), n = a && a.identity && a.identity.name;
+  return !n || confirm(`This replaces your autosaved persona "${n}". If you want to keep it, open it and click Save file first.\n\nContinue?`);
+}
+function showStart(){
+  $("startView").hidden = false; $("builderView").hidden = true; $("topActions").hidden = true; $("saveState").textContent = "";
+  const a = readAutosave();
+  $("startContinue").hidden = !a;
+  if (a){
+    const when = a.updatedAt ? new Date(a.updatedAt).toLocaleString() : "";
+    $("continueInfo").textContent = `${(a.identity && a.identity.name) || "Unnamed persona"}${when ? " · last edited " + when : ""}`;
+  }
+  $("startBlank").focus();
+}
+
+$("startBlank").onclick = () => { if (confirmReplace()) openBuilder(blankState()); };
+$("startRemi").onclick = () => {
+  if (!confirmReplace()) return;
+  const s = blankState(); s.data = clone(REMI); openBuilder(s);
+};
+$("startContinue").onclick = () => { try { openBuilder(fromPersonaJSON(readAutosave())); } catch (e) { alert(e.message); } };
+$("startOpen").onclick = () => $("openFile").click();
+$("openFile").onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => { try { openBuilder(fromPersonaJSON(JSON.parse(r.result))); toast(`Opened ${file.name}`); } catch (err) { alert("Couldn't open that file: " + err.message); } };
+  r.readAsText(file); e.target.value = "";
+};
+$("btnSave").onclick = saveFile;
+$("btnHome").onclick = showStart;
+$("drawerToggle").onclick = () => {
+  const open = $("summary").classList.toggle("open");
+  $("drawerToggle").setAttribute("aria-expanded", String(open)); renderSummary();
+};
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){
+    if (document.activeElement && document.activeElement.classList.contains("tip")) document.activeElement.blur();
+    if ($("summary").classList.contains("open")) $("drawerToggle").click();
+  }
+});
+
+showStart();
+</script>
+</body>
+</html>
